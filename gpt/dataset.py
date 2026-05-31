@@ -94,3 +94,15 @@ class TextDataset(Dataset):
         # Target sequence: characters from index idx + 1 to idx + block_size
         target_sequence = self.data[idx + 1 : idx + self.block_size + 1]
         return input_sequence, target_sequence
+        
+from torch.utils.data import Dataset, DataLoader
+
+# 6. Instantiate the custom Dataset
+dataset = TextDataset(encoded_text, max_seq_len)
+print(f"Dataset instantiated with {len(dataset)} possible sequences.")
+
+# 7. Create a DataLoader instance
+batch_size = 64 # Define a suitable batch size
+dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+
+print(f"DataLoader created with batch size {batch_size}.")
