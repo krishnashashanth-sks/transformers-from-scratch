@@ -246,10 +246,6 @@ num_labels=3            # Task-specific
 Krishna Shashanth K S  
 GitHub: [@krishnashashanth-sks](https://github.com/krishnashashanth-sks)
 
-## License
-
-MIT License - See LICENSE file for details
-
 ---
 
 **Built with ❤️ for efficient long document processing**
