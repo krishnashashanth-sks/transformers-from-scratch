@@ -1,0 +1,11 @@
+def train_step_llama(model,batch,clm_criterion,llama_optimizer,device):
+  model.train()
+  input_ids=batch['input_ids'].to(device)
+  labels=batch['labels'].to(device)
+  attention_mask=batch['attention_mask'].to(device)
+  llama_optimizer.zero_grad()
+  logits=model(input_ids,attention_mask=attention_mask)
+  loss=clm_criterion(logits.view(-1,vocab_size_llama),labels.view(-1))
+  loss.backward()
+  llama_optimizer.step()
+  return loss.item()
