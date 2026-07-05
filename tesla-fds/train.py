@@ -1,3 +1,7 @@
+import torch
+import os
+from evaluate import evaluate
+
 # Define the training function
 def train_fsd_system(model, train_dataloader, val_dataloader, loss_calculator,
                      optimizer, scheduler, scaler, device, num_epochs, max_grad_norm,
@@ -13,7 +17,7 @@ def train_fsd_system(model, train_dataloader, val_dataloader, loss_calculator,
     for epoch in range(num_epochs):
         model.train()  # Set model to training mode
         total_train_loss = 0.0
-        
+
         # Training Loop
         for batch_idx, (model_inputs, ground_truths) in enumerate(train_dataloader):
             optimizer.zero_grad()  # Zero gradients for each batch
@@ -40,7 +44,7 @@ def train_fsd_system(model, train_dataloader, val_dataloader, loss_calculator,
                 )
                 loss_info = loss_calculator(model_outputs, ground_truths)
                 loss = loss_info['total_loss']
-            
+
             # Backward pass and optimizer step with GradScaler
             scaler.scale(loss).backward()  # Scale loss and compute gradients
             scaler.unscale_(optimizer)     # Unscale gradients before clipping
@@ -49,7 +53,7 @@ def train_fsd_system(model, train_dataloader, val_dataloader, loss_calculator,
             scaler.update()                # Update the GradScaler for the next iteration
 
             total_train_loss += loss.item()
-            
+
             if batch_idx % 10 == 0: # Print every 10 batches
                 print(f"Epoch {epoch+1}/{num_epochs}, Batch {batch_idx+1}/{len(train_dataloader)}, Train Loss: {loss.item():.4f}, LR: {optimizer.param_groups[0]['lr']:.6f}")
 
@@ -60,7 +64,7 @@ def train_fsd_system(model, train_dataloader, val_dataloader, loss_calculator,
         avg_val_loss, _, best_val_metric = evaluate(
             model, val_dataloader, loss_calculator, params, device, epoch + 1, best_val_metric, checkpoint_dir
         )
-        
+
         scheduler.step() # Step learning rate scheduler after each epoch (or customize to step after each batch)
 
     print("\n--- FSDSystem Training Process Complete ---")
