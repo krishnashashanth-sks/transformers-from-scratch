@@ -8,6 +8,7 @@ from PIL import Image
 import torchvision.transforms as transforms
 from scipy.ndimage import gaussian_filter 
 from pyquaternion import Quaternion 
+from nuscenes.utils.splits import create_splits_scenes
 
 class NuScenesDataset(Dataset):
     def __init__(self, nusc, version='v1.0-mini', dataroot='/content/drive/MyDrive/nuscenes',
@@ -53,23 +54,30 @@ class NuScenesDataset(Dataset):
         print(f"Initialized NuScenesDataset with {len(self.sample_tokens)} samples for split '{split}'.")
 
     def _get_sample_tokens_for_split(self, split):
-        if split == 'mini_train':
-            scene_names = [
-                'scene-0061', 'scene-0065', 'scene-0103', 'scene-0106',
-                'scene-0107', 'scene-0109', 'scene-0150', 'scene-0151'
-            ]
-        elif split == 'mini_val':
-            scene_names = [
-                'scene-0152', 'scene-0153', 'scene-0154', 'scene-0168'
-            ] 
-        else: 
-            scene_names = [s['name'] for s in self.nusc.scene]
+        # 1. Get the official mapping of scene names to splits based on your dataset version
+        # This automatically handles 'mini_train', 'mini_val', 'train', 'val', etc.
+        try:
+            phase_scenes = create_splits_scenes()
+            if split not in phase_scenes:
+                raise ValueError(f"Split '{split}' not found in official nuScenes splits.")
+            scene_names = phase_scenes[split]
+        except Exception as e:
+            print(f"Warning: Falling back to custom split matching due to error: {e}")
+            # Fallback manual definitions if needed
+            if split == 'mini_train':
+                scene_names = ['scene-0061', 'scene-0065', 'scene-0103', 'scene-0106', 'scene-0107', 'scene-0109', 'scene-0150', 'scene-0151']
+            elif split == 'mini_val':
+                scene_names = ['scene-0152', 'scene-0153', 'scene-0154', 'scene-0168']
+            else:
+                scene_names = [s['name'] for s in self.nusc.scene]
 
+        # 2. Gather tokens matching those scene names
         tokens = []
         for sample in self.nusc.sample:
             scene_record = self.nusc.get('scene', sample['scene_token'])
             if scene_record['name'] in scene_names:
                 tokens.append(sample['token'])
+                
         return tokens
 
     def __len__(self):

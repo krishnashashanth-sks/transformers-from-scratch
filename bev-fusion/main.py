@@ -19,9 +19,9 @@ DEPTH_CHANNELS = 64
 NUM_CAMERAS = 6
 LIDAR_GRID_SIZE = (BEV_W, BEV_H, 10) # (X_DIM, Y_DIM, Z_DIM)
 
-BATCH_SIZE = 1 # For demonstration, use a small batch size
+BATCH_SIZE = 16 # For demonstration, use a small batch size
 NUM_WORKERS = 0 # Set to 0 for debugging, increase for faster data loading
-NUM_EPOCHS = 3 # Number of training epochs
+NUM_EPOCHS = 1 # Number of training epochs
 LEARNING_RATE = 1e-4
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -48,10 +48,6 @@ train_dataset = NuScenesDataset(
     split='mini_train'
 )
 
-# Create validation dataset (using 'mini_val' split)
-# NOTE: For v1.0-mini, 'mini_train' and 'mini_val' might overlap or be small. 
-# You might need to adjust `_get_sample_tokens_for_split` in NuScenesDataset
-# to have a distinct validation set if working with the mini version.
 val_dataset = NuScenesDataset(
     nusc=nusc, 
     version='v1.0-mini', 
