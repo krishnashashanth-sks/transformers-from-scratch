@@ -1,3 +1,5 @@
+import torch
+import torch.nn.functional as F
 
 def generate_text(model, tokenizer, prompt, max_length=50, temperature=1.0, top_k=None, device='cpu'):
     model.eval() # Set the model to evaluation mode
